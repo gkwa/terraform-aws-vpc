@@ -18,7 +18,7 @@ variable "private_subnet_cidr_blocks" {
 	default = "10.0.1.0/24,10.0.3.0/24"
 }
 variable "availability_zones" {
-	default = "us-east-1a,us-east-1b"
+	default = "us-west-1a,us-west-1b,us-west-1c"
 }
 variable "nat_ami" { }
 variable "nat_instance_type" {
