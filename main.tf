@@ -7,6 +7,7 @@ resource "aws_vpc" "default" {
   enable_dns_support = true
   enable_dns_hostnames = true
 
+  lifecycle { create_before_destroy = true }
   tags {
     Name = "${var.name}"
   }
@@ -91,6 +92,7 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_vpc_endpoint" "s3" {
+	lifecycle { create_before_destroy = true }
 	vpc_id = "${aws_vpc.default.id}"
 	service_name = "com.amazonaws.${var.region}.s3"
 	route_table_ids = ["${aws_route_table.public.id}"]
@@ -159,6 +161,7 @@ resource "aws_instance" "nat" {
 #
 
 resource "aws_security_group" "bastion" {
+  lifecycle { create_before_destroy = true }
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
