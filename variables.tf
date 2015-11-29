@@ -4,6 +4,9 @@ variable "name" {
 variable "region" {
 	default = "us-east-1"
 }
+variable "provider" {
+	default = "aws"
+}
 variable "key_name" { }
 variable "cidr_block" {
 	default = "10.0.0.0/16"
