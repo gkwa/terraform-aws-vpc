@@ -7,6 +7,7 @@ resource "aws_vpc" "default" {
   enable_dns_support = true
   enable_dns_hostnames = true
 
+  lifecycle { create_before_destroy = true }
   tags {
     Name = "${var.name}"
   }
@@ -14,9 +15,11 @@ resource "aws_vpc" "default" {
 
 resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.default.id}"
+  lifecycle { create_before_destroy = true }
 }
 
 resource "aws_route_table" "private" {
+  lifecycle { create_before_destroy = true }
   count = "${length(split(",", var.private_subnet_cidr_blocks))}"
 
   vpc_id = "${aws_vpc.default.id}"
@@ -31,6 +34,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table" "public" {
+  lifecycle { create_before_destroy = true }
   vpc_id = "${aws_vpc.default.id}"
   route {
     cidr_block = "0.0.0.0/0"
@@ -72,6 +76,7 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table_association" "private" {
+  lifecycle { create_before_destroy = true }
   count = "${length(split(",", var.private_subnet_cidr_blocks))}"
 
   subnet_id = "${element(aws_subnet.private.*.id, count.index)}"
@@ -79,6 +84,7 @@ resource "aws_route_table_association" "private" {
 }
 
 resource "aws_route_table_association" "public" {
+  lifecycle { create_before_destroy = true }
   count = "${length(split(",", var.public_subnet_cidr_blocks))}"
 
   subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
@@ -86,6 +92,7 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_vpc_endpoint" "s3" {
+	lifecycle { create_before_destroy = true }
 	vpc_id = "${aws_vpc.default.id}"
 	service_name = "com.amazonaws.${var.region}.s3"
 	route_table_ids = ["${aws_route_table.public.id}"]
@@ -96,6 +103,7 @@ resource "aws_vpc_endpoint" "s3" {
 #
 
 resource "aws_security_group" "nat" {
+  lifecycle { create_before_destroy = true }
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
@@ -130,6 +138,7 @@ resource "aws_security_group" "nat" {
 }
 
 resource "aws_instance" "nat" {
+  lifecycle { create_before_destroy = true }
   count = "${length(split(",", var.public_subnet_cidr_blocks))}"
 
   ami = "${var.nat_ami}"
@@ -152,6 +161,7 @@ resource "aws_instance" "nat" {
 #
 
 resource "aws_security_group" "bastion" {
+  lifecycle { create_before_destroy = true }
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
@@ -186,6 +196,7 @@ resource "aws_security_group" "bastion" {
 }
 
 resource "aws_instance" "bastion" {
+  lifecycle { create_before_destroy = true }
   ami = "${var.bastion_ami}"
   availability_zone = "${element(split(",", var.availability_zones), 0)}"
   instance_type = "${var.bastion_instance_type}"
